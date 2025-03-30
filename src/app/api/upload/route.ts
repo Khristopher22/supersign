@@ -4,6 +4,7 @@ import fs from "fs";
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/prisma"
+import { put } from '@vercel/blob';
 
 const UPLOAD_DIR = path.resolve(process.env.ROOT_PATH ?? "", "uploads");
 
@@ -31,7 +32,8 @@ export const POST = async (req: NextRequest) => {
             fs.mkdirSync(filePath, { recursive: true });
         }
 
-        fs.writeFileSync(fullPath, buffer);
+        //fs.writeFileSync(fullPath, buffer);
+        const blob = await put(file.name, file, { access: 'public' });
 
         await prisma.document.create({
             data: {
