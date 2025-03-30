@@ -13,6 +13,18 @@ pnpm dev
 # or
 bun dev
 ```
+## Variaveis de ambiente 
+Essas são as variaveis de ambiente a serem utilizadas na aplicação. A variavel `root_path` é o diretorio onde ficara salvo os arquivos dos usuarios.
+```
+DATABASE_URL="mongodb+srv://khristopheroficial:desafioSuperSign@supersign.pftif4q.mongodb.net/supersign?retryWrites=true&w=majority&appName=supersign"
+NODE_ENV=development
+NEXTAUTH_URL=http://localhost:3000
+HOST_URL=http://localhost:3000
+NEXTAUTH_SECRET=projetosecreto123
+GOOGLE_CLIENT_ID=<id do google cloud>
+GOOGLE_CLIENT_SECRET=< secret do clientid google cloud >
+ROOT_PATH="/app/supersign/"
+```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
