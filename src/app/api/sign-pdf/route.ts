@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
         await prisma.document.update({
             where: { id: documentId },
             data: {
-                fileKey: fullPath,
+                fileKey: blob.url,
                 url: blob.downloadUrl,
                 status: 'SIGNED',
                 updatedAt: new Date(),
