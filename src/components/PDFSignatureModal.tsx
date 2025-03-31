@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import SignatureCanvas from 'react-signature-canvas'
-import { toast } from "react-toastify";
+import { toast } from "react-toastify"
 
 interface Props {
     documentId: string
@@ -30,31 +30,37 @@ export default function PDFSignatureModal({
             return
         }
 
-        setSending(true)
-        const signatureImg = sigRef.current.getTrimmedCanvas().toDataURL('image/png')
+        try {
+            setSending(true)
 
-        const res = await fetch('/api/sign-pdf', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                documentId,
-                signatureImg,
-                posX: 100,
-                posY: 100,
-                page: -1
+            const signatureImg = sigRef.current.getTrimmedCanvas().toDataURL('image/png')
+
+            const res = await fetch('/api/sign-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    documentId,
+                    signatureImg,
+                    posX: 100, // posição fixa por enquanto
+                    posY: 100,
+                    page: -1 // -1 indica última página
+                })
             })
-        })
 
-        const result = await res.json()
-        setSending(false)
-
-        if (result.success) {
-            toast.success('Documento assinado com sucesso!')
-            onSigned()
-        } else {
-            toast.error('Erro ao assinar o documento.')
+            const result = await res.json()
+            if (result.success) {
+                toast.success('Documento assinado com sucesso!')
+                onSigned()
+            } else {
+                toast.error(result.error || 'Erro ao assinar o documento.')
+            }
+        } catch (error) {
+            console.error('Erro ao assinar:', error)
+            toast.error('Erro ao enviar assinatura.')
+        } finally {
+            setSending(false)
         }
     }
 
@@ -63,8 +69,11 @@ export default function PDFSignatureModal({
     }
 
     return (
-        <div className="flex flex-col gap-3 items-center">
-            <p className="text-sm text-gray-700 text-center">Assine abaixo e clique em confirmar para assinar o PDF na última página.</p>
+        <div className="flex flex-col gap-4 items-center">
+            <p className="text-sm text-gray-700 text-center">
+                Assine abaixo e clique em <strong>Confirmar</strong> para inserir sua assinatura na última página do PDF.
+            </p>
+
             <SignatureCanvas
                 ref={sigRef}
                 penColor="black"
@@ -75,10 +84,12 @@ export default function PDFSignatureModal({
                         width: styleWidth,
                         height: styleHeight,
                         border: '1px solid #ccc',
-                        borderRadius: '0.375rem'
+                        borderRadius: '0.375rem',
+                        backgroundColor: '#fff'
                     }
                 }}
             />
+
             <div className="flex gap-4 mt-2">
                 <button
                     onClick={handleSubmit}

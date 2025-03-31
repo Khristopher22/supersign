@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
-import fs from "fs";
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/prisma"
@@ -28,20 +27,15 @@ export const POST = async (req: NextRequest) => {
 
         const buffer = Buffer.from(await file.arrayBuffer());
 
-        if (!fs.existsSync(filePath)) {
-            fs.mkdirSync(filePath, { recursive: true });
-        }
-
-        //fs.writeFileSync(fullPath, buffer);
-        const blob = await put(file.name, file, { access: 'public' });
+        const blob = await put(fullPath, file, { access: 'public' });
 
         await prisma.document.create({
             data: {
                 name: file.name,
-                fileKey: fullPath,
+                fileKey: blob.url,
+                url: blob.downloadUrl,
                 userId: session.user.id,
                 status: "PENDING",
-                url: null,
             },
         });
 

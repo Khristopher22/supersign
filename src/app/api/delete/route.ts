@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/prisma"
-import fs from "fs"
+import { del } from "@vercel/blob"
+import path from "path";
 
 export const DELETE = async (req: NextRequest) => {
     const session = await getServerSession(authOptions)
@@ -27,15 +28,15 @@ export const DELETE = async (req: NextRequest) => {
     }
 
     if (!document.fileKey) {
-        return NextResponse.json({ success: false, error: "File path not found" }, { status: 500 })
+        return NextResponse.json({ success: false, error: "File key not found" }, { status: 500 })
     }
 
     try {
-        if (fs.existsSync(document.fileKey)) {
-            fs.unlinkSync(document.fileKey)
-        }
+        console.log("Deletando do blob:", document)
+        await del(document.fileKey)
     } catch (error) {
-        return NextResponse.json({ success: false, error: "Failed to delete file" }, { status: 500 })
+        console.error("Erro ao deletar do Vercel Blob:", error)
+        return NextResponse.json({ success: false, error: "Failed to delete file from Blob" }, { status: 500 })
     }
 
     await prisma.document.delete({

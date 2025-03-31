@@ -15,5 +15,10 @@ export const GET = async (req: NextRequest) => {
         orderBy: { createdAt: "desc" },
     })
 
-    return NextResponse.json({ success: true, documents })
+    const enrichedDocuments = documents.map(doc => ({
+        ...doc,
+        fileUrl: doc.fileKey ? doc.fileKey : null
+    }))
+
+    return NextResponse.json({ success: true, documents: enrichedDocuments })
 }
